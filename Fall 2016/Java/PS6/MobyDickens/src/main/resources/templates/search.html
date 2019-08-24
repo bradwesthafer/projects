@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Find a Book from Moby Dickens</title>
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/main.css'}" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div th:include="master :: head"></div>
+
+<section>
+
+    <h2>Find a Book</h2>
+
+    <form method="post">
+        <label>Title:</label><input name="title" /><label>Author:</label><input name="author" /><br/>
+        <button>Find Book</button>
+    </form>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="book : ${books}">
+            <td><p th:text="${book.title}"/></td>
+            <td><p th:text="${book.author}"/></td>
+            <td><p th:text="${book.price}"/></td>
+        </tr>
+        </tbody>
+    </table>
+
+</section>
+
+<div th:include="master :: foot"></div>
+
+</body>
+</html>

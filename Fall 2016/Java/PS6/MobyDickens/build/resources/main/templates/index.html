@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Welcome to Moby Dickens</title>
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/main.css'}"/>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div th:include="master :: head"></div>
+
+<section>
+
+    <h2>Index Page</h2>
+    <p>For over 133 years, Moby Dickens has been a local leader in the field of selling books. With a selection that none of our competitors can match, helpful employees and a community-oriented atmosphere, we blah blah blah blah blah blah blah blah blah. More and more Corporate speak.</p>
+    <!--<table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="book : ${books}">
+            <td><p th:text="${book.title}"/></td>
+            <td><p th:text="${book.price}"/></td>
+        </tr>
+        </tbody>
+    </table>-->
+
+</section>
+
+<div th:include="master :: foot"></div>
+
+</body>
+</html>

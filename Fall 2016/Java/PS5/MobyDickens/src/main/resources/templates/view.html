@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>View All Books</title>
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/main.css'}"/>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div th:include="master :: head"></div>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Price</th>
+        <th>ISBN</th>
+        <th>Date Published</th>
+        <th>Genre</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book : ${books}">
+        <td><p th:text="${book.bookID}"/></td>
+        <td><p th:text="${book.title}"/></td>
+        <td><p th:text="${book.author}"/></td>
+        <td><p th:text="${book.price}"/></td>
+        <td><p th:text="${book.ISBN}"/></td>
+        <td><p th:text="${book.datePublished.month + ' ' + book.datePublished.year}"/></td>
+        <td><p th:text="${book.genreToString()}"/></td>
+        <td><a th:href="@{'/admin/books/edit/' + ${book.bookID}}">Edit</a></td>
+        <td><a th:href="@{'/admin/books/delete/' + ${book.bookID}}">Delete</a></td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:include="master :: foot"></div>
+</body>
+</html>

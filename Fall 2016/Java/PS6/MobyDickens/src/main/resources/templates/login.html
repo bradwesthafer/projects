@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Login to Moby Dickens</title>
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/main.css'}" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div th:include="master :: head"></div>
+
+<section>
+
+    <h2>Log In</h2>
+
+    <div class="container">
+        <form th:action="@{'/login'}" method="post">
+            <div class="row" th:if="${param.error}">
+                <div class="twelve columns">
+                    <span style="color: red;">Invalid user or password</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="four columns">
+                    <label>Username: </label>
+                </div>
+                <div class="eight columns">
+                    <input name="username" id="username"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="four columns">
+                    <label>Password: </label>
+                </div>
+                <div class="eight columns">
+                    <input name="userpass" id="userpass" type="password"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="twelve columns">
+                    <button type="submit">Log In</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+</section>
+
+<div th:include="master :: foot"></div>
+
+</body>
+</html>

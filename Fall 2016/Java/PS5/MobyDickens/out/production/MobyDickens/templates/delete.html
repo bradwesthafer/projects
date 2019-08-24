@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Delete Book</title>
+</head>
+<body>
+<p th:text="${'Are you sure you want to delete ' + book.title + '?'}" />
+<form method="post">
+    <input name="answer" value="Yes" hidden="hidden" />
+    <button>Yes</button>
+</form>
+<form method="post">
+    <input name="answer" value="No" hidden="hidden" />
+    <button>No</button>
+</form>
+</body>
+</html>

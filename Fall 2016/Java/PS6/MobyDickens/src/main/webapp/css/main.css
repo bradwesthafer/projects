@@ -1,0 +1,21 @@
+body {
+    background-color: navy !important;
+    color: white !important;
+    font-size: 20px !important;
+}
+
+a {
+    color: #ffb900 !important;
+}
+
+input {
+    color: #333333 !important;
+}
+
+select {
+    color: #333333 !important;
+}
+
+button {
+    color: #333333 !important;
+}

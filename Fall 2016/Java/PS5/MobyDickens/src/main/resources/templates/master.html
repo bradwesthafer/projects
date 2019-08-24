@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Welcome to Moby Dickens</title>
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/main.css'}"/>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div th:fragment="head">
+    <header>
+        <h1><a href="/"><img src="/img/mobydickens.png" alt="Welcome to Moby Dickens!" /></a></h1>
+        <p th:if="${#httpServletRequest.remoteUser}" th:inline="text">Currently logged in as [[${#httpServletRequest.remoteUser}]] <a href="/logout">(Logout)</a> </p>
+        <a th:unless="${#httpServletRequest.remoteUser}" href="/login">Log In</a>
+    </header>
+</div>
+
+<div th:fragment="foot">
+    <footer>
+        <cite>(c) 2016 Moby Dickens</cite>
+        <ul>
+            <li><a href="/search">Search Our Database</a></li>
+            <li><a href="/contact-us">Contact Us</a></li>
+            <div th:if="${#httpServletRequest.remoteUser}"><li><a  href="/admin/books/add">Add a Book to the Database</a></li>
+                <li><a href="/admin/books/view">View Book Database</a></li></div>
+        </ul>
+    </footer>
+</div>
+</body>
+</html>

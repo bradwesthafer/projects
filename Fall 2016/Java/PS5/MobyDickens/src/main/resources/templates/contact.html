@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Contact Moby Dickens</title>
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/main.css'}" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div th:include="master :: head"></div>
+
+<h1>Contact Moby Dickens</h1>
+
+<form method="post">
+    <label>Name</label>
+    <input name="name" required="required" /><br />
+    <label>Email Address</label>
+    <input name="email" required="required "/><br />
+    <label>Message</label>
+    <textarea name="message" required="required"></textarea><br/>
+    <button>Submit</button>
+</form>
+
+<div th:include="master :: foot"></div>
+
+</body>
+</html>

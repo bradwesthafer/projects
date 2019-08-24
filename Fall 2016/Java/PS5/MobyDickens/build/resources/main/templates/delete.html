@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Delete Book</title>
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/main.css'}" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div th:include="master :: head"></div>
+
+<p th:text="${'Are you sure you want to delete ' + book.title + '?'}" />
+<form method="post">
+    <input name="answer" value="Yes" hidden="hidden" />
+    <button>Yes</button>
+</form>
+<form method="post">
+    <input name="answer" value="No" hidden="hidden" />
+    <button>No</button>
+</form>
+
+<div th:include="master :: foot"></div>
+
+</body>
+</html>

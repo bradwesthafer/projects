@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Edit Book</title>
+    <link rel="stylesheet" type="text/css" th:href="@{'/css/main.css'}" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!--    <script type="text/javascript">
+            function clearText(field) {
+                if(field.getAttribute("value") == 'year') { field.setAttribute("value", ""); }
+            }
+        </script>-->
+</head>
+<body>
+<h1>Edit a Book in Moby Dickens Database</h1>
+
+<form method="post">
+
+    <label>Title</label>
+    <input name="bookTitle" th:value="${book.title}" /><br />
+
+    <label>Author</label>
+    <input name="bookAuthor" th:value="${book.author}" /><br />
+
+    <label>Price</label>
+    <input name="bookPrice" th:value="${book.price}" /><br />
+
+    <label>ISBN</label>
+    <input name="bookISBN" maxlength="13" th:value="${book.ISBN}" /><br />
+
+    <label>Date Published (Month and Year)</label>
+    <input name="bookDateMonth" th:value="${book.datePublished.month}" />
+    <!--<select id="bookDateMonth" name="bookDateMonth" th:field="${book.datePublished.month}">
+        <option value="January">January</option>
+        <option value="February">February</option>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May">May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+        <option value="October">October</option>
+        <option value="November">November</option>
+        <option value="December">December</option>
+    </select>-->
+    <input name="bookDateYear" size="4" maxlength="4" th:value="${book.datePublished.year}" /><br />
+
+    <input name="bookGenre" th:value="${book.genre}" hidden="hidden" />
+    <!--<select id="bookGenre" name="bookGenre" th:field="${book.genre}">
+        <option value="ADVENTURE">Adventure</option>
+        <option value="CLASSICS">Classics</option>
+        <option value="COMEDY">Comedy</option>
+        <option value="CRIME_DETECTIVE">Crime/Detective</option>
+        <option value="DRAMA">Drama</option>
+        <option value="FABLE">Fable</option>
+        <option value="FAIRY_TALE">Fairy Tale</option>
+        <option value="FAN_FICTION">Fan Fiction</option>
+        <option value="FANTASY">Fantasy</option>
+        <option value="HISTORICAL_FICTION">Historical Fiction</option>
+        <option value="HORROR">Horror</option>
+        <option value="MANGA">Manga</option>
+        <option value="MYSTERY">Mystery</option>
+        <option value="NON_FICTION">Non-Fiction</option>
+        <option value="REALISTIC_FICTION">Realistic Fiction</option>
+        <option value="ROMANCE">Romance</option>
+        <option value="SATIRE">Satire</option>
+        <option value="SCIENCE_FICTION">Science Fiction</option>
+        <option value="THRILLER">Thriller</option>
+        <option value="TRAGEDY">Tragedy</option>
+        <option value="WESTERN">Western</option>
+        <option value="YOUNG_ADULT">Young Adult</option>
+    </select><br />-->
+    <button>Submit</button>
+
+</form>
+</body>
+</html>
