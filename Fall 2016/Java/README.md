@@ -1,0 +1,1 @@
+This was the 3rd introductory programming course which used Java. We started out with basic command line programs, covered GUI development with Swing and finished by creating a bookstore web site using Spring. The first version of the bookstore used a database stored in memory while the second version used an actual SQL database (H2).
