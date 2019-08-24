@@ -1,0 +1,14 @@
+// Brad Westhafer
+// CMPSC 470
+// Project 1
+
+To compile my code, load a terminal, cd into the right directory, place ParserVal.java, Program.java and jflex-1.6.1.jar in the same directory and enter the following commands into the terminal:
+
+java -jar jflex-1.6.1.jar Lex.flex
+javac *.java
+
+The first command creates a file called Lex.java. The second compiles all of the .java files. To run my compiler, use the following command:
+
+java Program [filename]
+
+Replace [filename] with the name of a .foo file containing foo language code.

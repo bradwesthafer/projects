@@ -1,0 +1,25 @@
+// Brad Westhafer
+// CMPSC 470
+// Project 2
+
+To compile my code, load a terminal, cd into the right directory, place jflex-1.6.1.jar in the same directory and enter the following commands into the terminal:
+
+java -jar jflex-1.6.1.jar Lex.flex
+javac *.java
+
+The first command creates a file called Lex.java. The second compiles all of the .java files. To run my syntax checker, use the following command:
+
+java SyntaxChecker [filename]
+
+Replace [filename] with the name of a .foo file containing foo language code.
+
+If the file contains code written with valid foo syntax, the program's output will be:
+
+hardy:~/Desktop/470/proj2> java SyntaxChecker test01_main_1.foo
+Success
+
+If the file contains at least 1 syntax error, the program's output will be:
+
+hardy:~/Desktop/470/proj2> java SyntaxChecker test01_main_err1.foo
+Error: Syntax error
+
