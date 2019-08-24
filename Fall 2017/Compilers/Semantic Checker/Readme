@@ -1,0 +1,33 @@
+// Brad Westhafer
+// CMPSC 470
+// Project 3
+
+To compile my code, load a terminal, cd into the right directory, place jflex-1.6.1.jar, yacc.linux and TestEnv2.java in the same directory and enter the following commands into the terminal:
+
+java -jar jflex-1.6.1.jar Lexer.flex
+./yacc.linux -Jthrows="Exception" -Jextends=ParserBase -Jnorun -J Parser.y
+javac *.java
+
+The first command creates a file called Lex.java. The second compiles all of the .java files. To test my Env class, use the following command:
+
+java TestEnv2
+
+To run my Semantic Checker, use the following command:
+
+java SemanticChecker [filename]
+
+Replace [filename] with the name of a .foo file containing foo language code.
+
+If the file contains code written with valid foo syntax, the program's output will be:
+
+dijkstra:~/Desktop/470/proj3> java SemanticChecker success01.foo
+Success
+
+If the file contains at least 1 syntax error or semantic error, the program's output will resemble either of the following:
+
+dijkstra:~/Desktop/470/proj3> java SemanticChecker error01a.foo
+Error: syntax error
+Error: stack underflow. aborting...
+
+dijkstra:~/Desktop/470/proj3> java SemanticChecker error16b.foo
+Error at line 33: undefined tan3 is used.
