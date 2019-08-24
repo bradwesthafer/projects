@@ -1,0 +1,43 @@
+// Brad Westhafer
+// CMPSC 472
+// Homework #3
+// Problem 3A
+
+//******************************************
+//* HW#3 Problem  a and b                **
+//******************************************
+
+// One of the As runs first, followed by B, then the other 2 As. The semaphore waitForB is
+// initialized to 1, allowing 1 of the A processes to run first. That process signals waitforA,
+// increasing the value of that semaphore from 0 to 1, which allows B to run. B then runs and
+// signals waitForB twice, which allows the remaining 2 As to run in any order.
+
+semaphore waitForB;
+semaphore waitForA;
+
+////////////////////////////////////////////
+void A() {
+   wait(waitForB);
+   cout << "A";
+   signal(waitForA);
+}
+
+////////////////////////////////////////////
+void B() {
+   wait(waitForA);
+   cout << "B";
+   signal(waitForB);
+   signal(waitForB);
+}
+
+////////////////////////////////////////////
+void main() {
+    initialsem(waitForB, 1);
+    cobegin {
+       A();
+       A();
+       A();
+       B();
+     }
+     cout << endl;
+}

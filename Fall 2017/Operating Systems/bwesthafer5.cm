@@ -1,0 +1,796 @@
+// Brad Westhafer
+// CMPSC 472
+// Homework #5
+//
+// This program simulates Thanksgiving. Children rake leaves, mother cooks
+// a turkey,relatives arrive and then father takes them all on a hayride
+// following the rules specified in the problem description. Then, all
+// processes sit at the table, father carves the turkey, they eat and after
+// all of them are done, they are excused from the table and go their
+// separate ways. Children play, relatives go home, mother reads a book and
+// father watches football.
+
+semaphore childHayride; // child ready to go on hayride
+semaphore adultHayride; // relative ready to go on hayride
+semaphore motherHayride; // mother ready to go on hayride
+semaphore child8Hayride; // child 8 ready to go on hayride
+semaphore ready4Hayride; // has set its hayridepid and hayridetype variables
+semaphore hayrideDone; // hayride finished
+semaphore seated; // sitting at the table
+semaphore startEating; // can start eating
+semaphore doneEating; // finished eating
+semaphore excused; // excused from the table
+int waitingChildren; // # children (except child 8) waiting for hayride
+int waitingAdults; // # relatives waiting for hayride
+int child8Waiting; // is child 8 waiting for hayride?
+int motherWaiting; // is mother waiting for hayride?
+semaphore mutexwc; // Mutex for waitingChildren
+semaphore mutexwa; // Mutex for waitingAdults
+semaphore mutexm; // Mutes for motherWaiting
+semaphore mutexc8; // Mutex for child8Waiting
+semaphore mutexhp; // Mutex for hayridepid and hayridetype variables
+// There is a single mutex for the following 6 variables because
+// only 1 process should be setting any of these 6 variables at any
+// given time. Otherwise, a race condition could occur and one of the
+// processes might override another processes's info, producing inaccurate
+// output when the print process is called.
+int hayridepid1; // process ids for processes on current hayride
+int hayridepid2;
+int hayridepid3;
+char hayridetype1; // process types for processes currently on hayride
+char hayridetype2;
+char hayridetype3;
+
+///////////////////////////////////
+
+void Delay (void) {
+  int i;
+  int DelayTime;
+  DelayTime = random (100);
+  for (i = 0; i < DelayTime; i++);
+}
+
+///////////////////////////////////
+
+// Prints based on process type, pid and type of command
+atomic void print(char processType, int pid, int type) {
+  if(processType == 'c') {
+    cout << "   ";
+    if(type == 0) {
+      cout << "Child " << pid << " is raking leaves." << endl;
+    }
+    if(type == 1) {
+      cout << "Child " << pid << " is waiting for hayride." << endl;
+    }
+    if(type == 2) {
+      cout << "Child " << pid << " is sitting at table." << endl;
+    }
+    if(type == 3) {
+      cout << "Child " << pid << " is eating." << endl;
+    }
+    if(type == 4) {
+      cout << "Child " << pid << " is done eating." << endl;
+    }
+    if(type == 5) {
+      cout << "Child " << pid << " goes out to play." << endl;
+    }
+  }
+  if(processType == 'r') {
+    if(type == 0) {
+      cout << "Relative " << pid << " arrives." << endl;
+    }
+    if(type == 1) {
+      cout << "Relative " << pid << " is waiting for hayride." << endl;
+    }
+    if(type == 2) {
+      cout << "Relative " << pid << " is sitting at table." << endl;
+    }
+    if(type == 3) {
+      cout << "Relative " << pid << " is eating." << endl;
+    }
+    if(type == 4) {
+      cout << "Relative " << pid << " is done eating." << endl;
+    }
+    if(type == 5) {
+      cout << "Relative " << pid << " goes home." << endl;
+    }
+  }
+  if(processType == 'f') {
+    cout << "         ";
+    if(type == 0) {
+      cout << "Father " << " is ready to give hayrides." << endl;
+    }
+    if(type == 1) {
+      if(hayridetype1 == 'c') {
+        cout << "Father " << " gives hayride to Child " << hayridepid1 << "." << endl;
+      }
+      else {
+        cout << "Father " << " gives hayride to Relative " << hayridepid1 << ".";
+        cout << endl;
+      }
+    }
+    if(type == 2) {
+      cout << "Father " << " gives hayride to ";
+      if(hayridetype1 == 'm') {
+        cout << "Mother and ";
+      }
+      else if (hayridetype1 == 'c') {
+        cout << "Child " << hayridepid1 << " and ";
+      }
+      else {
+        cout << "Relative " << hayridepid1 << " and ";
+      }
+      if(hayridetype2 == 'm') {
+        cout << "Mother." << endl;
+      }
+      else if (hayridetype2 == 'c') {
+        cout << "Child " << hayridepid2 << "." << endl;
+      }
+      else {
+        cout << "Relative " << hayridepid2 << "." << endl;
+      }
+    }
+    if(type == 3) {
+      cout << "Father " << " gives hayride to ";
+      if(hayridetype1 == 'm') {
+        cout << "Mother, ";
+      }
+      else if (hayridetype1 == 'c') {
+        cout << "Child " << hayridepid1 << ", ";
+      }
+      else {
+        cout << "Relative " << hayridepid1 << ", ";
+      }
+      if(hayridetype2 == 'm') {
+        cout << "Mother and ";
+      }
+      else if (hayridetype2 == 'c') {
+        cout << "Child " << hayridepid2 << " and ";
+      }
+      else {
+        cout << "Relative " << hayridepid2 << " and ";
+      }
+      if(hayridetype3 == 'm') {
+        cout << "Mother." << endl;
+      }
+      else if (hayridetype3 == 'c') {
+        cout << "Child " << hayridepid3 << "." << endl;
+      }
+      else {
+        cout << "Relative " << hayridepid3 << "." << endl;
+      }
+    }
+    if(type == 4) {
+      cout << "Father " << " is sitting at table." << endl;
+    }
+    if(type == 5) {
+      cout << "Father " << " carves turkey." << endl;
+    }
+    if(type == 6) {
+      cout << "Father " << " is eating." << endl;
+    }
+    if(type == 7) {
+      cout << "Father " << " is done eating." << endl;
+    }
+    if(type == 8) {
+      cout << "Father " << " excuses everyone from table." << endl;
+    }
+    if(type == 9) {
+      cout << "Father " << " goes to watch football." << endl;
+    }
+  }
+  if(processType == 'm') {
+    cout << "      ";
+    if(type == 0) {
+      cout << "Mother is making the meal." << endl;
+    }
+    if(type == 1) {
+      cout << "Mother is waiting for hayride." << endl;
+    }
+    if(type == 2) {
+      cout << "Mother has put food on the table and is sitting at table." << endl;
+    }
+    if(type == 3) {
+      cout << "Mother is eating." << endl;
+    }
+    if(type == 4) {
+      cout << "Mother is done eating." << endl;
+    }
+    if(type == 5) {
+      cout << "Mother goes to read her book." << endl;
+    }
+  }
+}
+
+void Relative(int pid) {
+  // Relative arrives after a delay
+  Delay();
+  print('r', pid, 0);
+//Get Mutex for waitingAdults
+  wait(mutexwa);
+//Increment waitingAdults variable
+  waitingAdults = waitingAdults + 1;
+//Signal Mutex for waitingAdults
+  signal(mutexwa);
+//Print that you're waiting for a hayride
+  print('r', pid, 1);
+//Wait for adultHayride
+  wait(adultHayride);
+//Get mutex for hayride process info
+  wait(mutexhp);
+//Put your process information into the first free set of global variables
+//so it will appear in the printout
+  if(hayridetype1 == '') {
+    hayridepid1 = pid;
+    hayridetype1 = 'r';
+  }
+  else if(hayridetype2 == '') {
+    hayridepid2 = pid;
+    hayridetype2 = 'r';
+  }
+  else {
+    hayridepid3 = pid;
+    hayridetype3 = 'r';
+  }
+//Signal mutex for hayride process info
+  signal(mutexhp);
+//Signal that you've set your process info in the variable
+  signal(ready4Hayride);
+//Wait until the hayride is done.
+  wait(hayrideDone);
+//Delay to simulate cleaning up
+  Delay();
+//Print that you're sitting down at the table
+  print('r', pid, 2);
+//Signal that you're seated
+  signal(seated);
+//Wait until father gives you the signal to start eating
+  wait(startEating);
+//Print that you're eating
+  print('r', pid, 3);
+//Delay to simulate passage of time while eating
+  Delay();
+//Print that you're done eating
+  print('r', pid, 4);
+//Signal that you're done eating
+  signal(doneEating);
+//Wait until you're excused
+  wait(excused);
+//Go home
+  print('r', pid, 5);
+}
+
+
+///////////////////////////////////
+
+void Child(int pid) {
+// Rake Leaves after a delay
+  Delay();
+  print('c', pid, 0);
+  Delay(); // Time raking leaves
+
+//If not Child 8, increment waitingChildren variable
+  if(pid != 8) {
+//Get Mutex for waitingChildren
+    wait(mutexwc);
+    waitingChildren = waitingChildren + 1;
+//Signal Mutex for waitingChildren
+    signal(mutexwc);
+  }
+//If Child 8, increment child8Waiting variable
+  if(pid == 8) {
+// Get Mutex for child8Waiting
+    wait(mutexc8);
+    child8Waiting = 1;
+// Signal Mutex for child8Waiting
+    signal(mutexc8);
+  }
+//Print that you're waiting for a hayride
+  print('c', pid, 1);
+//If not child 8, wait for childHayride
+  if(pid != 8) {
+    wait(childHayride);
+  }
+//if Child 8, wait for child8Hayride
+  else {
+    wait(child8Hayride);
+  }
+//Get mutex for hayride process info
+  wait(mutexhp);
+//Put your process information into the first free set of global variables
+//so it will appear in the printout
+  if(hayridetype1 == '') {
+    hayridepid1 = pid;
+    hayridetype1 = 'c';
+  }
+  else if(hayridetype2 == '') {
+    hayridepid2 = pid;
+    hayridetype2 = 'c';
+  }
+  else {
+    hayridepid3 = pid;
+    hayridetype3 = 'c';
+  }
+//Signal mutex for hayride process info
+  signal(mutexhp);
+//Signal that you've set your process info in the variable
+  signal(ready4Hayride);
+//Wait until the hayride is done.
+  wait(hayrideDone);
+//Delay to simulate cleaning up
+  Delay();
+//Print that you're sitting down at the table
+  print('c', pid, 2);
+//Signal that you're seated
+  signal(seated);
+//Wait until father gives you the signal to start eating
+  wait(startEating);
+//Print that you're eating
+  print('c', pid, 3);
+//Delay to simulate passage of time while eating
+  Delay();
+//Print that you're done eating
+  print('c', pid, 4);
+//Signal that you're done eating
+  signal(doneEating);
+//Wait until you're excused
+  wait(excused);
+//Go out to play
+  print('c', pid, 5);
+}
+
+///////////////////////////////////
+
+void Mother() {
+//Delay then make the meal
+  Delay();
+  print('m', 0, 0);
+//Double Delay to simulate cooking
+  Delay();
+  Delay();
+//Get mutex for motherWaiting
+  wait(mutexm);
+  motherWaiting = 1;
+//Signal mutex for motherWaiting
+  signal(mutexm);
+//Print that you're waiting for a hayride
+  print('m', 0, 1);
+  wait(motherHayride);
+//Get mutex for hayride process info
+  wait(mutexhp);
+//Put your process information in the first free set of global variables
+  if(hayridetype1 == '') {
+    hayridetype1 = 'm';
+  }
+  else if(hayridetype2 == '') {
+    hayridetype2 = 'm';
+  }
+  else {
+    hayridetype3 = 'm';
+  }
+//Signal mutex for hayride process info
+  signal(mutexhp);
+//Signal that you've set your process info in the variable
+  signal(ready4Hayride);
+//Wait until the hayride is done.
+  wait(hayrideDone);
+//Delay to simulate cleaning up
+  Delay();
+//Print that you're putting the food on the table and sitting down
+  print('m', 0, 2);
+//Signal that you're seated
+  signal(seated);
+//Wait until father gives you the signal to start eating
+  wait(startEating);
+//Print that you're eating
+  print('m', 0, 3);
+//Delay to simulate passage of time while eating
+  Delay();
+//Print that you're done eating
+  print('m', 0, 4);
+//Signal that you're done eating
+  signal(doneEating);
+//Wait until you're excused
+  wait(excused);
+//Go to read your book
+  print('m', 0, 5);
+}
+
+///////////////////////////////////
+
+//Priorities were implemented as follows:
+//1) 3 children
+//2) mother, child 8 and 1 other child
+//3) 2 children and a relative
+//4) child 8 & mother (if all other children have had hayrides)
+//5) 2 children (if all but possibly child 8 & mother have had hayrides)
+//6) 1 child & 1 relative (all other children except child 8 have had hayrides)
+//7) 2 relatives
+//8) 1 child or 1 relatives (if everybody else has had a hayride)
+
+void Father() {
+//Initialize local variables
+  int totalHayrides;
+  int cHayrides;
+  int aHayrides;
+  int c8Hayride;
+  int mHayride;
+  int numOnHayride;
+  int i;
+  totalHayrides = 0;
+  numOnHayride = 0;
+  cHayrides = 0;
+  aHayrides = 0;
+  c8Hayride = 0;
+  mHayride = 0;
+//Delay until father is ready to give hayrides
+  Delay();
+//Print that you're ready to give hayrides
+  print('f', 0, 0);
+//While you haven't given everybody a hayride
+  while(totalHayrides != 15) {
+//Get mutexes for waiting variables so nobody else can be ready for a hayride
+//until you figure out who's going on the next one.
+//This is done to ensure that the data that father is going to read to
+//determine who gets to go on the next hayride does not change while he is
+//reading it.
+    wait(mutexwa);
+    wait(mutexwc);
+    wait(mutexm);
+    wait(mutexc8);
+//If 3 children are waiting, give them a hayride
+    if(waitingChildren > 2) {
+//Decrement waitingChildren
+      waitingChildren = waitingChildren - 3;
+//Signal mutexes
+      signal(mutexwa);
+      signal(mutexwc);
+      signal(mutexm);
+      signal(mutexc8);
+      numOnHayride = 3;
+//Signal the 3 children that will be on the hayride
+      signal(childHayride);
+      signal(childHayride);
+      signal(childHayride);
+//Wait until all 3 children have set their process info
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+//Print that you've given a hayride to 3 individuals
+      print('f', 0, 3);
+//Delay to simulate the hayride
+      Delay();
+//Signal that the hayride is done
+      signal(hayrideDone);
+      signal(hayrideDone);
+      signal(hayrideDone);
+//Incremenet totalHayrides and childHayrides
+      totalHayrides = totalHayrides + numOnHayride;
+      cHayrides = cHayrides + 3;
+      numOnHayride = 0;
+    }
+//If mother, child 8 and another child are waiting, give them a hayride
+    else if(motherWaiting == 1 && child8Waiting == 1 && waitingChildren != 0) {
+//Decrement waiting variables
+      waitingChildren = waitingChildren - 1;
+      child8Waiting = 0;
+      motherWaiting = 0;
+//Signal mutexes
+      signal(mutexwa);
+      signal(mutexwc);
+      signal(mutexm);
+      signal(mutexc8);
+      numOnHayride = 3;
+//Signal the 3 processes that will be on the hayride
+      signal(childHayride);
+      signal(child8Hayride);
+      signal(motherHayride);
+//Wait until all 3 processes have set their process info
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+//Print that you've given a hayride to 3 individuals
+      print('f', 0, 3);
+//Delay to simulate the hayride
+      Delay();
+//Signal that the hayride is done
+      signal(hayrideDone);
+      signal(hayrideDone);
+      signal(hayrideDone);
+//Increment various local hayride counters
+      totalHayrides = totalHayrides + numOnHayride;
+      cHayrides = cHayrides + 1;
+      c8Hayride = c8Hayride + 1;
+      mHayride = mHayride + 1;
+      numOnHayride = 0;
+    }
+//If 2 children and an adult are waiting, give them a hayride
+    else if(waitingChildren == 2 && waitingAdults != 0) {
+//Decrement waiting variables
+      waitingChildren = waitingChildren - 2;
+      waitingAdults = waitingAdults - 1;
+//Signal mutexes
+      signal(mutexwa);
+      signal(mutexwc);
+      signal(mutexm);
+      signal(mutexc8);
+      numOnHayride = 3;
+//Signal the 3 processes that will be on the hayride
+      signal(childHayride);
+      signal(childHayride);
+      signal(adultHayride);
+//Wait until all 3 processes have set their process info
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+//Print that you've given a hayride to 3 individuals
+      print('f', 0, 3);
+//Delay to simulate the hayride
+      Delay();
+//Signal that the hayride is done
+      signal(hayrideDone);
+      signal(hayrideDone);
+      signal(hayrideDone);
+//Increment totalHayrides, childHayrides and adultHayrides
+      totalHayrides = totalHayrides + numOnHayride;
+      cHayrides = cHayrides + 2;
+      aHayrides = aHayrides + 1;
+      numOnHayride = 0;
+    }
+    else if(child8Waiting == 1 && motherWaiting == 1 && cHayrides == 7) {
+//Child 8 and Mother both ready, all other children have already had hayrides
+//Decrement waiting variables
+      child8Waiting = 0;
+      motherWaiting = 0;
+//Signal mutexes
+      signal(mutexwa);
+      signal(mutexwc);
+      signal(mutexm);
+      signal(mutexc8);
+      numOnHayride = 2;
+//Signal the 2 processes that will be on the hayride
+      signal(child8Hayride);
+      signal(motherHayride);
+//Wait until both processes have set their process info
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+//Print that you've given a hayride to 2 individuals
+      print('f', 0, 2);
+//Delay to simulate the hayride
+      Delay();
+//Signal that the hayride is done
+      signal(hayrideDone);
+      signal(hayrideDone);
+      signal(hayrideDone);
+//Increment totalHayrides, c8Hayride and mHayride
+      totalHayrides = totalHayrides + numOnHayride;
+      c8Hayride = c8Hayride + 1;
+      mHayride = mHayride + 1;
+      numOnHayride = 0;
+    }
+    else if(waitingChildren == 2 && aHayrides == 6 && cHayrides == 5) {
+//All relatives have already had hayrides, 2 children are waiting
+//and all other children except possibly child 8 have had hayrides
+//Decrement waitingChildren
+    waitingChildren = waitingChildren - 2;
+//Signal mutexes
+      signal(mutexwa);
+      signal(mutexwc);
+      signal(mutexm);
+      signal(mutexc8);
+      numOnHayride = 2;
+//Signal the 2 children that will be on the hayride
+      signal(childHayride);
+      signal(childHayride);
+//Wait until both children have set their process info
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+//Print that you've given a hayride to 2 individuals
+      print('f', 0, 2);
+//Delay to simulate the hayride
+      Delay();
+//Signal that the hayride is done
+      signal(hayrideDone);
+      signal(hayrideDone);
+//Increment totalHayrides and childHayrides
+      totalHayrides = totalHayrides + numOnHayride;
+      cHayrides = cHayrides + 2;
+      numOnHayride = 0;
+    }
+    else if (waitingChildren == 1 && waitingAdults > 0 && cHayrides > 5) {
+//A child and at least 1 adult are waiting
+//With possible exception of child 8, all other children have had hayrides
+//Decrement waiting variables
+      waitingChildren = waitingChildren - 1;
+      waitingAdults = waitingAdults - 1;
+//Signal mutexes
+      signal(mutexwa);
+      signal(mutexwc);
+      signal(mutexm);
+      signal(mutexc8);
+      numOnHayride = 2;
+//Signal the 2 children that will be on the hayride
+      signal(adultHayride);
+      signal(childHayride);
+//Wait until both children have set their process info
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+//Print that you've given a hayride to 2 individuals
+      print('f', 0, 2);
+//Delay to simulate the hayride
+      Delay();
+//Signal that the hayride is done
+      signal(hayrideDone);
+      signal(hayrideDone);
+//Increment totalHayrides, childHayrides and adultHayrides
+      totalHayrides = totalHayrides + numOnHayride;
+      cHayrides = cHayrides + 1;
+      aHayrides = aHayrides + 1;
+      numOnHayride = 0;
+    }
+    else if(waitingAdults > 1) {
+//Decrement waitingAdults
+      waitingAdults = waitingAdults - 2;
+//Signal mutexes
+      signal(mutexwa);
+      signal(mutexwc);
+      signal(mutexm);
+      signal(mutexc8);
+      numOnHayride = 2;
+//Signal the 2 processes that will be on the hayride
+      signal(adultHayride);
+      signal(adultHayride);
+//Wait until both processes have set their process info
+      wait(ready4Hayride);
+      wait(ready4Hayride);
+//Print that you've given a hayride to 2 individuals
+      print('f', 0, 2);
+//Delay to simulate the hayride
+      Delay();
+//Signal that the hayride is done
+      signal(hayrideDone);
+      signal(hayrideDone);
+//Increment totalHayrides and adultHayrides
+      totalHayrides = totalHayrides + numOnHayride;
+      aHayrides = aHayrides + 2;
+      numOnHayride = 0;
+    }
+    else if(totalHayrides == 14 && (waitingChildren == 1 || waitingAdults == 1)) {
+//One child or one adult still waiting at the end
+//Set both waiting variables to 0
+      waitingChildren = 0;
+      waitingAdults = 0;
+//Signal Mutexes
+        signal(mutexwa);
+        signal(mutexwc);
+        signal(mutexm);
+        signal(mutexc8);
+        numOnHayride = 1;
+        if(waitingChildren == 1) {
+//Signal the child that will be on the hayride
+        signal(childHayride);
+//Wait until the child has set its process info
+        wait(ready4Hayride);
+//Print that you've given a hayride to a single individual
+        print('f', 0, 1);
+//Delay to simulate the hayride
+        Delay();
+//Signal that the hayride is done
+        signal(hayrideDone);
+        signal(hayrideDone);
+//Increment totalHayrides and cHayrides
+        totalHayrides = totalHayrides + numOnHayride;
+        cHayrides = cHayrides + 1;
+        numOnHayride = 0;
+        }
+        else {
+//Signal the relative who will be on the hayride
+        signal(adultHayride);
+//Wait until the child has set its process info
+        wait(ready4Hayride);
+//Print that you've given a hayride to a single individual
+        print('f', 0, 1);
+//Delay to simulate the hayride
+        Delay();
+//Signal that the hayride is done
+        signal(hayrideDone);
+        signal(hayrideDone);
+//Increment totalHayrides
+        totalHayrides = totalHayrides + numOnHayride;
+        aHayrides = aHayrides + 1;
+        numOnHayride = 0;
+        }
+    }
+    else {
+//Signal mutexes and repeat loop
+      signal(mutexwa);
+      signal(mutexwc);
+      signal(mutexm);
+      signal(mutexc8);
+    }
+//Get mutex for hayride process info
+  wait(mutexhp);
+//Reset hayrideProcessInfo variables
+  hayridetype1 = '';
+  hayridetype2 = '';
+  hayridetype3 = '';
+  hayridepid1 = 0;
+  hayridepid2 = 0;
+  hayridepid3 = 0;
+//Signal mutex for hayride process info
+  signal(mutexhp);
+  }
+//Delay to simulate unhooking horses, feeding them and cleaning up
+  Delay();
+//Print that you've sat down at the table
+  print('f', 0, 4);
+//Wait until all 8 children, 6 relatives and mother have sat at the table.
+  for(i = 0; i < 15; i++) {
+    wait(seated);
+  }
+//Print that you've carved the turkey
+  print('f', 0, 5);
+//Signal to everybody that they can eat
+  for(i = 0; i < 15; i++) {
+    signal(startEating);
+  }
+//Print that you're eating
+  print('f', 0, 6);
+//Delay to simulate passage of time while eating
+  Delay();
+//Print that you're done eating
+  print('f', 0, 7);
+//Wait until everybody is done eating
+  for(i = 0; i < 15; i++) {
+    wait(doneEating);
+  }
+//Print that you excuse everybody from the table
+  print('f', 0, 8);
+//Excuse everybody from the table
+  for(i = 0; i < 15; i++) {
+    signal(excused);
+  }
+//Go to watch football
+  print('f', 0, 9);
+}
+
+
+///////////////////////////////////
+main() {
+//Initialize mutexes to 1
+  initialsem(mutexwa, 1);
+  initialsem(mutexwc, 1);
+  initialsem(mutexc8, 1);
+  initialsem(mutexm, 1);
+  initialsem(mutexhp, 1);
+//Initial variables to 0 or '' as appropriate
+  hayridetype1 = '';
+  hayridetype2 = '';
+  hayridetype3 = '';
+  hayridepid1 = 0;
+  hayridepid2 = 0;
+  hayridepid3 = 0;
+  waitingChildren = 0;
+  waitingAdults = 0;
+// Begin processes concurrently
+  cobegin {
+    Father();
+    Mother();
+    Child(1);
+    Child(2);
+    Child(3);
+    Child(4);
+    Child(5);
+    Child(6);
+    Child(7);
+    Child(8);
+    Relative(1);
+    Relative(2);
+    Relative(3);
+    Relative(4);
+    Relative(5);
+    Relative(6);
+  }
+    cout << endl;
+}
+

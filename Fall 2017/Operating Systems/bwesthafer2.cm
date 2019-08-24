@@ -1,0 +1,61 @@
+// Brad Westhafer
+// CMPSC 472
+// Homework #3
+// Problem 2
+
+// A) The sum could be 3, 4, 5, 6, 7, 8 or 9
+// depending upon the order in which the various addition statements are executed.
+
+// B) The onetwosem.cm program is incorrect because it uses 2 separate semaphores,
+// both of which are initialized to 1 and are placed around the entire for loop,
+// which overly restricts concurrency. That program does not actually provide
+// mutual exclusion and is equivalent to the version with no semaphores.
+
+semaphore mutex;
+
+//******************************************
+//* HW#3 Problem 2 a and c                **
+//******************************************
+
+int sum;
+
+///////////////////////////////////
+void One()
+// Procedure to add 1 to sum 3 times
+
+{
+     int i;
+     for ( i = 1; i <= 3; i = i + 1) {
+          wait(mutex);
+          sum = sum + 1;
+          signal(mutex);
+     }
+}
+
+
+///////////////////////////////////
+void Two()
+// Procedure to add 2 to sum 3 times
+
+{
+     int i;
+     for ( i = 1; i <= 3; i = i + 1) {
+          wait(mutex);
+          sum = sum + 2;
+          signal(mutex);
+     }
+}
+
+
+///////////////////////////////////
+main()
+{
+  initialsem(mutex, 1);
+  sum = 0;
+  cobegin {  // This will start the two processes concurrently
+    One(); 
+    Two(); 
+  }
+  cout << "The sum is " << sum << endl;
+}
+

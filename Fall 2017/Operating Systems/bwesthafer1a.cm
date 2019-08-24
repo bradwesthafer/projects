@@ -1,0 +1,84 @@
+// Brad Westhafer
+// CMPSC 472
+// Homework #3
+// Problem 1A
+
+//************************************************
+//* HW#3 Problem 1: use for parts a and b and c **
+//************************************************
+
+semaphore wait4Stop;
+semaphore wait4Look;
+semaphore wait4Listen;
+semaphore wait4Cross;
+
+///////////////////////////////////
+void say(int id)
+{
+  switch (id)
+  {  case 1:
+     {cout << "Stop "; break;}
+     case 2:
+     {cout << "Look "; break;}
+     case 3:
+     {cout << "Listen "; break;}
+     case 4:
+     {cout << "Cross "; break;}
+  }
+}
+
+
+///////////////////////////////////
+void ProcessStop()
+{
+  wait(wait4Cross);
+  say(1);
+  signal(wait4Stop);
+}
+
+
+///////////////////////////////////
+void ProcessLook()
+{
+  wait(wait4Stop);
+  say(2);
+  signal(wait4Look);
+}
+
+
+
+///////////////////////////////////
+void ProcessListen()
+{
+  wait(wait4Look);
+  say(3);
+  signal(wait4Listen);
+}
+
+
+///////////////////////////////////
+
+
+
+///////////////////////////////////
+void ProcessCross()
+{
+  wait(wait4Listen);
+  say(4);
+  signal(wait4Cross);
+}
+
+
+///////////////////////////////////
+main()
+{
+  initialsem(wait4Cross, 1);
+  cobegin {
+    ProcessStop(); // This will start all 4 processes concurrently
+    ProcessLook();
+    ProcessListen();
+    ProcessCross();
+  }
+    cout << endl;
+}
+

@@ -1,0 +1,92 @@
+// Brad Westhafer
+// CMPSC 472
+// Homework #4
+// Problem 1
+
+semaphore shed;
+semaphore printer;
+
+///////////////////////////////////
+
+void Delay (void)
+{
+  int i;
+  int DelayTime;
+  DelayTime = random (100);
+  for (i = 0; i < DelayTime; i++);
+}
+
+///////////////////////////////////
+
+void ready(int pid)
+{
+  // ready to enter shed
+  wait(printer);
+  cout << "Bird " << pid << " is ready to enter the feeding shed.\n";
+  signal(printer);
+  // get semaphore
+  wait(shed);
+}
+
+///////////////////////////////////
+
+void eat(int pid)
+{
+  // enter shed and start eating
+  wait(printer);
+  cout << "Bird " << pid << " has entered the feeding shed and started eating\n";
+  signal(printer);
+  // eat for some length of time
+  Delay();
+}
+
+///////////////////////////////////
+
+void leaveShed(int pid)
+{
+  // Leave the shed
+  wait(printer);
+  cout << "Bird " << pid << " has left the feeding shed.\n";
+  signal(printer);
+  // Return semaphore
+  signal(shed);
+}
+
+///////////////////////////////////
+void Bird(int pid)
+{
+  int i;
+  for(i = 0; i < 10; i++) {
+    Delay(); // not hungry
+    ready(pid); // ready to enter feeding shed, gets semaphore
+    eat(pid); // has semaphore, enters feeding shed and eats
+    leaveShed(pid); // leaves shed, returns semaphore
+  }
+}
+
+
+///////////////////////////////////
+main()
+{
+  initialsem(shed, 5);
+  initialsem(printer, 1);
+  cobegin {
+    Bird(1);
+    Bird(2);
+    Bird(3);
+    Bird(4);
+    Bird(5);
+    Bird(6);
+    Bird(7);
+    Bird(8);
+    Bird(9);
+    Bird(10);
+    Bird(11);
+    Bird(12);
+    Bird(13);
+    Bird(14);
+    Bird(15);
+  }
+    cout << endl;
+}
+

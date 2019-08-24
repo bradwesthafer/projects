@@ -1,0 +1,617 @@
+// Brad Westhafer
+// CMPSC 472
+// Homework #4
+// Problem 2
+
+semaphore student;
+semaphore mutex;
+semaphore s519;
+semaphore s472;
+semaphore s312;
+semaphore officeDoor;
+semaphore printer;
+semaphore answer;
+semaphore listen;
+semaphore question;
+semaphore done;
+semaphore left;
+semaphore enter;
+semaphore bothEntered;
+semaphore bothLeft;
+int students519; // # of 519 students waiting or seeing professor
+int students312; // # of 312 students waiting or seeing professor
+int students472; // # of 472 students waiting or seeing professor
+int arrived312; // 0 = Not arrived, 1 = Arrived Earliest
+int arrived472; // 2 = Arrived 2nd, 3 = Arrived Last
+int arrived519;
+// To avoid starvation, the last class to see the professor will always
+// have the highest arrival value. This puts a bound of 3 on the
+// wait time for any group of students from any class once they
+// form a group.
+int inOffice; // # of students currently in or entering the office
+int flag; // 0 = No class in office, 312/472/519 = that class in office
+
+///////////////////////////////////
+
+// Delay for a time of up to 40.
+// Used at various points other than arrival
+void Delay (void)
+{
+  int i;
+  int DelayTime;
+  DelayTime = random (40);
+  for (i = 0; i < DelayTime; i++);
+}
+
+///////////////////////////////////
+
+// Delay the arrival of the various students for up to 1000.
+void DelayArrival (void)
+{
+  int i;
+  int DelayTime;
+  DelayTime = random (1000);
+  for (i = 0; i < DelayTime; i++);
+}
+
+///////////////////////////////////
+
+void Student312(int pid)
+{
+  DelayArrival(); // Delay Arrival
+// Print arrival to console
+  wait(printer);
+  cout << "312 Student #" << pid << " is waiting outside the professor's office.\n";
+  signal(printer);
+// Wait for mutex to increment # of waiting students from 312
+// and initialize arrival order variables if necessary
+  wait(mutex);
+  students312++;
+  if(arrived312 == 0) {
+    if(arrived472 == 0 && arrived519 == 0) {
+      arrived312 = 1;
+    }
+    else if(arrived472 == 0 || arrived519 == 0) {
+      arrived312 = 2;
+    }
+    else {
+      arrived312 = 3;
+    }
+  }
+  signal(mutex);
+// Wait to become part of next 312 group to see professor
+  wait(s312);
+// If there aren't enough 312 students yet, students are already in the professor's office
+// or another class has priority, wait until its your turn to see the professor.
+  while(students312 < 2 || inOffice == 2 || (inOffice == 1 && flag != 312) || (flag == 0 && arrived312 != 1 &&
+  ((students519 != 0 && arrived312 > arrived519) || (students472 > 1 && arrived312 > arrived472)))) {
+    // Do Nothing
+  }
+// Inform the professor that a student is preparing to enter her office.
+  signal(student);
+// Wait for mutex in order to set the flag to 312 to keep other classes out
+// of the professor's office
+  wait(mutex);
+  if(flag != 312) {
+    while(flag != 0 && flag != 312) {
+// If students from another class have already set the flag, give up mutex
+      signal(mutex);
+      Delay(); // Wait for other student(s) to hopefully finish
+// Take mutex back and check if its fine to enter the office
+      wait(mutex);
+    }
+    flag = 312;
+  }
+// increment the number of students in office variable to keep students from
+// other classes in the busy loop while you're in the professor's office
+  inOffice++;
+// Give back mutex
+  signal(mutex);
+// Wait for the semaphore allowing you to enter the professor's office
+// then wait for the printer to announce your arrival to console
+  wait(officeDoor);
+  wait(printer);
+  cout << "312 Student #" << pid << " has entered the professor's office.\n";
+  signal(printer);
+// Signal to the professor that you've entered her office
+  signal(enter);
+// Wait until the professor informs you that both students have entered
+// then ask your question.
+  wait(bothEntered);
+  wait(printer);
+  cout << "312 Student #" << pid << " is asking a question.\n";
+  signal(printer);
+  signal(question);
+// Wait for the professor to answer
+  wait(answer);
+// Inform both the console and professor that you're listening to her answer.
+  wait(printer);
+  cout << "312 Student #" << pid << " is listening.\n";
+  signal(printer);
+// Simulate passage of time before you listen.
+  Delay();
+  signal(listen);
+// Wait until the professor is done answering.
+  wait(done);
+// Leave the professor's office
+  wait(printer);
+  cout << "312 Student #" << pid << " is leaving the professor's office.\n";
+  signal(printer);
+// Get mutex to reduce the number of students from 312,
+// set the flag to 0 and reset the arrival order to allow
+// students from other classes to see the professor.
+  wait(mutex);
+  if(flag == 312) {
+    flag = 0;
+  }
+  students312--;
+  if(students312 != 0) {
+     if(arrived472 == 0 && arrived519 == 0) {
+       arrived312 = 1;
+     }
+     else if(arrived472 == 0 || arrived519 == 0) {
+       arrived312 = 2;
+       if(arrived472 == 0) {
+         arrived519 = 1;
+       }
+       if(arrived519 == 0) {
+         arrived472 = 1;
+       }
+     }
+     else {
+       arrived312 = 3;
+       if(arrived472 > arrived519) {
+         arrived519 = 1;
+         arrived472 = 2;
+       }
+       else {
+         arrived472 = 1;
+         arrived519 = 2;
+       }
+     }
+  }
+  else {
+    arrived312 = 0;
+    if(arrived472 != 0 || arrived519 != 0) {
+      if(arrived472 == 0) {
+        arrived519 = 1;
+      }
+      else if(arrived519 == 0) {
+        arrived312 = 1;
+      }
+      else if(arrived472 > arrived519) {
+        arrived472 = 1;
+        arrived519 = 2;
+      }
+      else {
+        arrived519 = 1;
+        arrived472 = 2;
+      }
+    }
+  }
+  signal(mutex);
+// Announce that you've left the professor's office, set the number of
+// students in her office to 0 and inform the professor that you've left.
+  wait(printer);
+  cout << "312 Student #" << pid << " has left the professor's office.\n";
+  signal(printer);
+  wait(mutex);
+  inOffice = 0;
+  signal(mutex);
+  signal(left);
+// Wait until the professor acknowledges both 312 students have left then
+// signal that another group of 312 students can form and prepare to enter the office.
+  signal(bothLeft);
+  signal(s312);
+}
+
+
+///////////////////////////////////
+
+void Student472(int pid)
+{
+  DelayArrival(); // Delay Arrival
+// Print arrival to console
+  wait(printer);
+  cout << "472 Student #" << pid << " is waiting outside the professor's office.\n";
+  signal(printer);
+// Wait for mutex to increment # of waiting students from 472
+// and initialize arrival order variables if necessary
+  wait(mutex);
+  students472++;
+  if(arrived472 == 0) {
+    if(arrived312 == 0 && arrived519 == 0) {
+      arrived472 = 1;
+    }
+    else if(arrived312 == 0 || arrived519 == 0) {
+      arrived472 = 2;
+    }
+    else {
+      arrived472 = 3;
+    }
+  }
+  signal(mutex);
+// Wait to become part of next 472 group to see professor
+  wait(s472);
+// If there aren't enough 472 students yet, students are already in the professor's office
+// or another class has priority, wait until its your turn to see the professor.
+  while(students472 < 2 || inOffice == 2 || (inOffice == 1 && flag != 472) || (flag == 0 && arrived472 != 1 &&
+  ((students519 != 0 && arrived472 > arrived519) || (students312 > 1 && arrived472 > arrived312)))) {
+    // Do Nothing
+  }
+// Inform the professor that a student is preparing to enter her office.
+  signal(student);
+// Wait for mutex in order to set the flag to 472 to keep other classes out
+// of the professor's office
+  wait(mutex);
+  if(flag != 472) {
+    while(flag != 0 && flag != 472) {
+// If students from another class have already set the flag, give up mutex
+      signal(mutex);
+      Delay(); // Wait for other student(s) to hopefully finish
+// Take mutex back and check if its fine to enter the office
+      wait(mutex);
+    }
+    flag = 472;
+  }
+// increment the number of students in office variable to keep students from
+// other classes in the busy loop while you're in the professor's office
+  inOffice++;
+// Give back mutex
+  signal(mutex);
+// Wait for the semaphore allowing you to enter the professor's office
+// then wait for the printer to announce your arrival to console
+  wait(officeDoor);
+  wait(printer);
+  cout << "472 Student #" << pid << " has entered the professor's office.\n";
+  signal(printer);
+// Signal to the professor that you've entered her office
+  signal(enter);
+// Wait until the professor informs you that both students have entered
+// then ask your question.
+  wait(bothEntered);
+  wait(printer);
+  cout << "472 Student #" << pid << " is asking a question.\n";
+  signal(printer);
+  signal(question);
+// Wait for the professor to answer
+  wait(answer);
+// Inform both the console and professor that you're listening to her answer.
+  wait(printer);
+  cout << "472 Student #" << pid << " is listening.\n";
+  signal(printer);
+// Simulate passage of time before you listen.
+  Delay();
+  signal(listen);
+// Wait until the professor is done answering.
+  wait(done);
+// Leave the professor's office
+  wait(printer);
+  cout << "472 Student #" << pid << " is leaving the professor's office.\n";
+  signal(printer);
+// Get mutex to reduce the number of students from 472,
+// set the flag to 0 and reset the arrival order to allow
+// students from other classes to see the professor.
+  wait(mutex);
+  if(flag == 472) {
+    flag = 0;
+  }
+  students472--;
+  if(students472) {
+     if(arrived312 == 0 && arrived519 == 0) {
+       arrived472 = 1;
+     }
+     else if(arrived312 == 0 || arrived519 == 0) {
+       arrived472 = 2;
+       if(arrived312 == 0) {
+         arrived519 = 1;
+       }
+       if(arrived519 == 0) {
+         arrived312 = 1;
+       }
+     }
+     else {
+       arrived472 = 3;
+       if(arrived312 > arrived519) {
+         arrived519 = 1;
+         arrived312 = 2;
+       }
+       else {
+         arrived312 = 1;
+         arrived519 = 2;
+       }
+     }  
+  }
+  else {
+    arrived472 = 0;
+    if(arrived312 != 0 || arrived519 != 0) {
+      if(arrived312 == 0) {
+        arrived519 = 1;
+      }
+      else if(arrived519 == 0) {
+        arrived312 = 1;
+      }
+      else if(arrived312 > arrived519) {
+        arrived312 = 1;
+        arrived519 = 2;
+      }
+      else {
+        arrived519 = 1;
+        arrived312 = 2;
+      }
+    }
+  }
+  signal(mutex);
+// Announce that you've left the professor's office, set the number of
+// students in her office to 0 and inform the professor that you've left.
+  wait(printer);
+  cout << "472 Student #" << pid << " has left the professor's office.\n";
+  signal(printer);
+  wait(mutex);
+  inOffice = 0;
+  signal(mutex);
+  signal(left);
+// Wait until the professor acknowledges both 472 students have left then
+// signal that another group of 472 students can form and prepare to enter the office.
+  signal(bothLeft);
+  signal(s472);
+}
+
+
+///////////////////////////////////
+
+void Student519(int pid)
+{
+  DelayArrival(); // Delay Arrival
+// Print arrival to console
+  wait(printer);
+  cout << "519 Student #" << pid << " is waiting outside the professor's office.\n";
+  signal(printer);
+// Wait for mutex to increment # of waiting students from 519
+// and initialize arrival order variables if necessary
+  wait(mutex);
+  students519++;
+  if(arrived519 == 0) {
+    if(arrived312 == 0 && arrived472 == 0) {
+      arrived519 = 1;
+    }
+    else if(arrived312 == 0 || arrived472 == 0) {
+      arrived519 = 2;
+    }
+    else {
+      arrived519 = 3;
+    }
+  }
+  signal(mutex);
+// Wait to become next 519 student to see professor
+  wait(s519);
+// If students are already in the professor's office
+// or another class has priority, wait until its your turn to see the professor.
+  while(flag != 0 || inOffice > 0 || (arrived519 != 1 && ((students472 > 1 && arrived519 > arrived472) ||
+  (students312 > 1 && arrived519 > arrived312)))) {
+    // Do Nothing
+  }
+// Inform the professor that a student is preparing to enter her office.
+// Do so twice because 519 students enter the professor's office alone
+// and the professor is expecting 2 signals.
+  signal(student);
+  signal(student);
+// Wait for mutex in order to set the flag to 519 to keep other classes out
+// of the professor's office
+  wait(mutex);
+  while(flag != 0) {
+// If students from another class have already set the flag, give up mutex
+    signal(mutex);
+    Delay(); // Wait for other students to hopefully finish
+// Take mutex back and check if its fine to enter the office
+    wait(mutex);
+  }
+  flag = 519;
+// Set the number of students in office variable to 2 to keep students from
+// other classes in the busy loop while you're in the professor's office
+  inOffice = 2;
+// Give back mutex
+  signal(mutex);
+// Wait for the semaphore allowing you to enter the professor's office
+// then wait for the printer to announce your arrival to console
+// Grab both instances of the semaphore to ensure other students stay out
+  wait(officeDoor);
+  wait(officeDoor);
+  wait(printer);
+  cout << "519 Student #" << pid << " has entered the professor's office.\n";
+  signal(printer);
+// Signal to the professor that you've entered her office
+// Do so twice since the professor is expecting 2 signals
+// Then wait for the professor to acknowledge your entry
+  signal(enter);
+  signal(enter);
+  wait(bothEntered);
+  wait(bothEntered);
+// Ask your question
+  wait(printer);
+  cout << "519 Student #" << pid << " is asking a question.\n";
+  signal(printer);
+  signal(question);
+  signal(question);
+// Wait for the professor to answer
+  wait(answer);
+  wait(answer);
+// Inform both the console and professor that you're listening to her answer.
+  wait(printer);
+  cout << "519 Student #" << pid << " is listening.\n";
+  signal(printer);
+// Simulate passage of time before you listen.
+  Delay();
+  signal(listen);
+  signal(listen);
+// Wait until the professor is done answering.
+  wait(done);
+  wait(done);
+// Leave the professor's office
+  wait(printer);
+  cout << "519 Student #" << pid << " is leaving the professor's office.\n";
+  signal(printer);
+// Get mutex to reduce the number of students from 519,
+// set the flag to 0 and reset the arrival order to allow
+// students from other classes to see the professor.
+  wait(mutex);
+  flag = 0;
+  students519--;
+  if(students519 != 0) {
+    if(arrived312 == 0 && arrived472 == 0) {
+      arrived519 = 1;
+    }
+    else if(arrived312 == 0 || arrived472 == 0) {
+      arrived519 = 2;
+      if(arrived312 == 0) {
+        arrived472 = 1;
+      }
+      if(arrived472 == 0) {
+        arrived312 = 1;
+      }
+    }
+    else {
+      arrived519 = 3;
+      if(arrived312 > arrived472) {
+        arrived472 = 1;
+        arrived312 = 2;
+      }
+      else {
+        arrived312 = 1;
+        arrived472 = 2;
+      }
+    }
+  }
+  else {
+    arrived519 = 0;
+    if(arrived312 || arrived472) {
+      if(arrived312 == 0) {
+        arrived472 = 1;
+      }
+      else if(arrived472 == 0) {
+        arrived312 = 1;
+      }
+      else if(arrived312 > arrived472) {
+        arrived312 = 1;
+        arrived472 = 2;
+      }
+      else {
+        arrived472 = 1;
+        arrived312 = 2;
+      }
+    }
+  }
+  signal(mutex);
+// Announce that you've left the professor's office, set the number of
+// students in her office to 0 and inform the professor that you've left.
+  wait(printer);
+  cout << "519 Student #" << pid << " has left the professor's office.\n";
+  signal(printer);
+  wait(mutex);
+  inOffice = 0;
+  signal(mutex);
+  signal(left);
+  signal(left);
+// Wait for bothLeft twice to reduce that semaphore to 0
+// so it doesn't cause synchronization problems for 312 students
+// and 472 students
+  wait(bothLeft);
+  wait(bothLeft);
+// Signal the other 519 students so that another student can enter
+// the office to ask the professor a question.
+  signal(s519);
+
+}
+
+///////////////////////////////////
+void Prof()
+{
+// Run 10 times because there are 3 groups from 312,
+// 3 groups from 472 and 4 students from 519 that will
+// be visiting you.
+  int i;
+  for(i = 0; i < 10; i++) {
+// Wait for the students to wake you up.
+    wait(student);
+    wait(student);
+// Wait for both students to enter.
+    wait(enter);
+    wait(enter);
+// Inform the students that both of them have entered.
+    signal(bothEntered);
+    signal(bothEntered);
+// Wait for the students to ask their question.
+    wait(question);
+    wait(question);
+// Announce to the console that you're answering
+// then answer their question.
+    wait(printer);
+    cout << "The professor is answering.\n";
+    signal(printer);
+    signal(answer);
+    signal(answer);
+// Wait until they both listen.
+    wait(listen);
+    wait(listen);
+// Go into a delay loop to simulate the passage of time
+// while answering their question.
+    Delay();
+// Inform the console and both students that you're done
+// answering their question.
+    wait(printer);
+    cout << "The professor has finished answering.\n";
+    signal(printer);
+    signal(done);
+    signal(done);
+// Wait until both students leave.
+    wait(left);
+    wait(left);
+// Inform the students that both of them have left.
+    signal(bothLeft);
+    signal(bothLeft);
+// Open your office door to allow 2 more students to enter.
+    signal(officeDoor);
+    signal(officeDoor);
+// Loop around and go to sleep until students arrive.
+  }
+}
+
+///////////////////////////////////
+main()
+{
+  initialsem(mutex, 1);
+  initialsem(officeDoor, 2);
+  initialsem(printer, 1);
+  initialsem(s312, 2);
+  initialsem(s472, 2);
+  initialsem(s519, 1);
+//  initialsem(block, 1);
+  students519 = 0;
+  students472 = 0;
+  students312 = 0;
+  arrived312 = 0;
+  arrived472 = 0;
+  arrived519 = 0;
+  inOffice = 0;
+  cobegin {
+    Prof();
+    Student312(1);
+    Student312(2);
+    Student312(3);
+    Student312(4);
+    Student312(5);
+    Student312(6);
+    Student472(1);
+    Student472(2);
+    Student472(3);
+    Student472(4);
+    Student472(5);
+    Student472(6);
+    Student519(1);
+    Student519(2);
+    Student519(3);
+    Student519(4);
+  }
+    cout << endl;
+}
+
