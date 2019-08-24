@@ -1,0 +1,22 @@
+/* Brad Westhafer
+   COMP 512
+   Homework #3
+   README */
+
+To run pipe-hw3, you need to compile it and pass a message as a command line argument.
+
+To run intclient.c and intserver.c, compile them, start the server on one Sun Lab machine and then start the client on the other, passing it the name of that machine as an argument. For example (assuming the executable is called intclient and the server is running on ada):
+
+./intclient ada
+
+To use intclient, just type a string into the client and press enter. It will be sent to the server, which will reverse it and change it into uppercase.
+
+To run the tic-tac-toe client/server program, just compile it, run the server and pass the client a command line argument giving the name of the Sun Lab machine that the server is running on. Since intclient/intserver uses port 6989 and tttclient/tttserver uses port 6988, both of them can be run simultaneously.
+
+In tic-tac-toe, the board is represented as 3 rows and 3 columns of ASCII text. The character '_' represents an empty space. The character 'C' represents a space where the client has already moved and the character 'S' represents a space where the server has already moved.
+
+To make a move, enter the empty space you wish to claim as 2 integers separated by a blank space. The rows are numbered from 1 to 3 and the columns are also numbered from 1 to 3. You win if you claim 3 spaces in a row either horizontally, vertically or diagonally. The client always makes the first move in this implementation. The server then determines its move and sends the updated board to the client, which is then displayed to the user.
+
+After somebody claims 3 spaces in a row or all 9 spaces are claimed, tic-tac-toe will display a message regarding the result of the game and ask if you want to play another game.
+
+The server can support multiple clients at the same time. I have tested it with 2 instances of the client running on separate Sun Lab machines simultaneously connected to the server running on a single machine.
