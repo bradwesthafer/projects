@@ -1,0 +1,20 @@
+SQL> @hw6-4
+   Major                Student Name         Total Credits                      
+----------------------------------------------------------                      
+   Biology              Tanaka                    120                           
+   Comp. Sci.           Brown                      58                           
+                        Shankar                    32                           
+                        Williams                   54                           
+                        Zhang                     102                           
+   Elec. Eng.           Aoi                        60                           
+                        Bourikas                   98                           
+   Finance              Chavez                    110                           
+   History              Brandt                     80                           
+   Music                Sanchez                    38                           
+   Physics              Levy                       46                           
+                        Peltier                    56                           
+                        Snow                        0                           
+
+PL/SQL procedure successfully completed.
+
+SQL> spool off;

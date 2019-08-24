@@ -1,0 +1,82 @@
+/*Brad Westhafer
+CMPSC 430
+Assignment #3*/
+
+--a)
+
+select name
+from student, taking, class
+where student.studentnum = taking.studentnum and class.schedulenum = taking.schedulenum and class.semester = taking.semester and department = 'CMPSC' and num = 430 and taking.semester = 'S17';
+
+--b)
+
+select name
+from student
+where studentnum in (select studentnum from taking, class where class.schedulenum = taking.schedulenum and taking.semester = class.semester and department = 'CMPSC' and num = 430 and taking.semester = 'S17');
+
+--c)
+
+select name, standing
+from student
+where studentnum in (select studentnum from taking where (schedulenum, semester) in (select schedulenum, semester from teaches where name = 'Jeremy Blum'))
+union
+select name, standing
+from student
+where studentnum in (select studentnum from taking where (schedulenum, semester) in (select schedulenum, semester from teaches where name = 'Linda Null'));
+
+--d)
+select name, standing
+from student minus (select name, standing
+from student
+where exists (select studentnum from taking where (schedulenum, semester) in (select schedulenum, semester from class where department = 'CMPSC' and num = '430') and student.studentnum = taking.studentnum));
+
+--e)
+
+select s.name, s.standing
+from student s, student alice
+where s.standing = alice.standing and alice.name = 'Alice'
+order by name;
+
+--f)
+
+select name, department
+from instructor
+where office like '%Olmsted%';
+
+--g)
+
+select avg(gpa)
+from student;
+
+--h)
+
+select name, standing
+from student
+where gpa in (select max(gpa)
+from student);
+
+--i)
+
+select count(*)
+from student
+where gpa > 3.0;
+
+--j)
+
+select taking.semester, taking.schedulenum, avg(grade)
+from taking, class
+where taking.semester = class.semester and taking.schedulenum = class.schedulenum and department = 'CMPSC' and num = '430'
+group by taking.semester, taking.schedulenum;
+
+--k) 
+
+select name, numcourses
+from (select name, count(*) as numcourses
+	from student, taking
+	where student.studentnum = taking.studentnum and semester = 'S17'
+	group by taking.studentnum, name)
+where numcourses >= (select max(numcourses)
+			from(select count(*) as numcourses
+			from taking
+			where semester = 'S17'
+			group by studentnum));

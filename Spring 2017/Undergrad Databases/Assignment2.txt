@@ -1,0 +1,64 @@
+/*Brad Westhafer
+CMPSC 430
+Assignment #2*/
+
+a)
+
+create table Student(
+	studentnum int,
+	name varchar2(50) not null,
+	standing varchar2(10) not null,
+	gpa real,
+	primary key (studentnum),
+	check (standing in ('first year', 'sophomore', 'junior', 'senior')),
+	check (gpa >= 0.0),
+	check (gpa <= 4.0));
+
+create table Class(
+	schedulenum int,
+	semester varchar2(3),
+	department varchar2(30) not null,
+	num int not null,
+	days varchar2(5),
+	time varchar2(7),
+	place varchar2(15),
+	enrollment int not null,
+	primary key (schedulenum, semester));
+
+create table Instructor(
+	name varchar2(50) primary key,
+	department varchar2(30) not null,
+	office varchar2(15));
+
+create table Teaches(
+	name varchar2(50),
+	schedulenum int,
+	semester varchar2(3),
+	primary key (schedulenum, semester),
+	foreign key (schedulenum, semester) references Class,
+	foreign key (name) references Instructor);
+
+create table Taking(
+	studentnum int,
+	schedulenum int,
+	semester varchar2(3),
+	grade varchar2(2),
+	primary key (studentnum, schedulenum, semester),
+	foreign key (studentnum) references Student,
+	foreign key (schedulenum, semester) references Class);
+
+b)
+
+create table Deans_List(
+       studentnum int not null,
+       semester varchar2(3) not null,
+       primary key (studentnum, semester),
+       foreign key (studentnum) references Student);
+
+c)
+
+alter table Student add address varchar2(40);
+
+d)
+
+delete from Student;

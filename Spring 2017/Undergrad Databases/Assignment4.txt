@@ -1,0 +1,54 @@
+Homework 4
+CMPSC 430
+Brad Westhafer
+
+1)
+
+a)
+
+update student
+set tot_cred = case
+when tot_cred > 120 then tot_cred
+when tot_cred > 100 then 120
+else tot_cred + 20
+end;
+
+b)
+
+i)
+
+create view report_card as
+select name, student.dept_name as dept_name, course.course_id as course_id, title, grade
+from student, takes, section, course
+where student.ID = takes.ID and takes.course_id = section.course_id and takes.sec_id = section.sec_id and takes.semester = section.semester and takes.year = section.year and section.course_id = course.course_id;
+
+ii)
+
+Assuming that the database did not reject the insertion (Oracle does), it would have to execute the equivalent of the following statements:
+
+insert into student values (null, 'Jackson', 'Music', null);
+insert into takes values(null, 'MU-200', null, null, null, 'B+);
+insert into section values('MU-200', null, null, null, null, null, null);
+insert into course values('MU-200', 'Bebop', null, null);
+
+As there can be more than 1 student with the same name and department and more than 1 section of the course, the database cannot unambiguously determine which student named 'Jackson' from the 'Music' department you are referring to or which section of 'MU-200' you are referring to. It would also have to insert the course into the course relation because it may not exist.
+
+c)
+
+delete from teaches;
+
+There are no integrity constraints that would cause problems with deleting tuples from the teaches relation because its attributes are not directly referenced by any other relation. The teaches.ID attribute is a foreign key referencing instructor.ID and the other attributes are a foreign key referencing the section relation's primary key.
+
+d)
+
+insert into course values('CS-430', 'Database', 'Comp. Sci.', 3);
+
+e)
+
+insert into section (course_id, sec_id, semester, year) values('CS-430', 1, 'Spring', 2015);
+
+f)
+
+insert into takes (ID, course_id, sec_id, semester, year) (select ID, course_id, sec_id, semester, year from student, section where dept_name = 'Comp. Sci.' and course_id = 'CS-430' and sec_id = 1 and semester = 'Spring' and year = 2015);
+
+2) This query does not work in all cases because student.dept_name and course.dept_name are not necessarily going to be the same. For example, a student in Electrical Engineering or Math might have taken the Robotics course, which was offered by the Computer Science department. If all students who have taken the Robotics course are from the same department that is offering the course then it would work correctly.

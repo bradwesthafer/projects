@@ -1,0 +1,14 @@
+SQL> @hw6-2
+   Department           Salary                                                  
+----------------------------------                                              
+   Elec. Eng.           80000                                                   
+   Physics              91000                                                   
+   Comp. Sci.           77333.33                                                
+   Finance              85000                                                   
+   Biology              72000                                                   
+   Music                40000                                                   
+   History              41800.6                                                 
+
+PL/SQL procedure successfully completed.
+
+SQL> spool off

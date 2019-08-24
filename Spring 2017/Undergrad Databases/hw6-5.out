@@ -1,0 +1,23 @@
+SQL> @hw6-5
+   Student Name         Instructors Taken                                       
+-----------------------------------------------                                 
+   Aoi                  Kim                                                     
+   Bourikas             Srinivasan                                              
+   Brandt               El Said                                                 
+   Brown                Brandt                                                  
+                        Srinivasan                                              
+   Chavez               Wu                                                      
+   Levy                 Katz                                                    
+                        Srinivasan                                              
+   Peltier              Einstein                                                
+   Sanchez              Mozart                                                  
+   Shankar              Brandt                                                  
+                        Srinivasan                                              
+   Tanaka               Crick                                                   
+   Williams             Brandt                                                  
+                        Srinivasan                                              
+   Zhang                Srinivasan                                              
+
+PL/SQL procedure successfully completed.
+
+SQL> spool off
