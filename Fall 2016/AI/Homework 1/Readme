@@ -1,0 +1,14 @@
+CMPSC 441
+Brad Westhafer
+bdw5204@psu.edu
+October 5, 2016
+Homework 1
+
+To run search using my version of farmer.ss, type in (load "farmer.ss") and make any of the following function calls:
+
+(farmer-depth-first init)
+(farmer-breadth-first init)
+(fdf init)
+(fbf init)
+
+fdf and fbf are shorthands for farmer-depth-first and farmer-breadth-first just like cdf and cbf are shorthands in coins.ss.

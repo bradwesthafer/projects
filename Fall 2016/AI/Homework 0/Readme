@@ -1,0 +1,7 @@
+CMPSC 441
+Brad Westhafer
+bdw5204@psu.edu
+September 12, 2016
+Homework 0
+
+My compose function works for 1 or more arguments, but not for 0 arguments. The rest of my functions work for all of the provided test cases.

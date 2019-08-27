@@ -1,0 +1,43 @@
+CMPSC 441
+Brad Westhafer
+bdw5204@psu.edu
+November 30, 2016
+Homework 3
+
+I implemented both Part 1 and Part 2 of this assignment based on the template that Dr. Chang provided. Most of
+the comments in my code are new, but I kept Dr. Chang's comments where they still described my code accurately
+I reused the flatten and up functions that I wrote for Homework 0 to make the has-part? function easier to write.
+All of my functions return output identical to that of the examples on the homework sheet, as long as an snet.data
+file is used that contains the appropriate relationships.
+
+To run my code, enter the following line of Scheme code:
+
+(load "snet.ss")
+
+To check if a 'car' is a 'helicopter', enter the following line of code:
+
+(isa? 'car 'helicopter)
+
+To check if a 'car' has a part called 'door', enter the following line of code:
+
+(has-part? 'car 'door)
+
+To check if an instance of 'car' called 'car.5' has a part called 'window', enter the following line of code:
+
+(has-part? 'car.5 'window)
+
+To find a list of all parts of a 'helicopter', enter the following line of code:
+
+(parts-of 'helicopter)
+
+To find a list of all parts of an instance of 'helicopter' called 'chopper.404', enter the following line of code:
+
+(parts-of 'chopper.404)
+
+This code will only work if a file called 'snet.data' exists and contains relationships in the following format:
+
+(isa car land-vehicle)
+(has-part helicopter propeller)
+(inst car.1 car)
+
+This is the same format used by the 'snet.data' file that was provided as start-up code for this assignment.
